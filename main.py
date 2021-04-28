@@ -71,6 +71,7 @@ def send_photo(update: Update, context: CallbackContext) -> None:
 
 
 def handle_message(update: Update, context: CallbackContext) -> None:
+    logging.info('Got message with text "' + update.message.text + '" from ' + get_user_description(update))
     if update.message.text == GET_PROVERB_TEXT:
         if len(context.job_queue.get_jobs_by_name(str(update.effective_user.id))) > 0:
             update.message.reply_text('24 часа с получения предыдущей еще не прошло!')
