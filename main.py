@@ -1,5 +1,7 @@
+import datetime
 import logging
 import os, random
+import pytz
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -61,8 +63,10 @@ def send_photo(update: Update, context: CallbackContext) -> None:
     proverb_img = open(get_random_image(IMG_DIR), 'rb')
     update.message.reply_photo(proverb_img)
     proverb_img.close()
-    update.message.reply_text('Через 24 часа смогу прислать еще одну!')
-    context.job_queue.run_once(send_reminder, 10,
+    update.message.reply_text('После полуночи смогу прислать еще одну!')
+    midnight = datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), datetime.time(0, 0))
+    midnight_utc_3 = pytz.timezone('Europe/Moscow').localize(midnight)
+    context.job_queue.run_once(send_reminder, midnight_utc_3,
                                context=update.effective_user.id, name=str(update.effective_user.id))
 
 
