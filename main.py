@@ -64,9 +64,10 @@ def send_photo(update: Update, context: CallbackContext) -> None:
     update.message.reply_photo(proverb_img)
     proverb_img.close()
     update.message.reply_text('После полуночи (по московскому времени) смогу прислать еще одну!')
-    midnight = datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), datetime.time(0, 0))
-    midnight_utc_3 = pytz.timezone('Europe/Moscow').localize(midnight)
-    context.job_queue.run_once(send_reminder, midnight_utc_3,
+    midnight = datetime.datetime.now(pytz.timezone('Europe/Moscow'))\
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+    midnight += datetime.timedelta(days=1)
+    context.job_queue.run_once(send_reminder, midnight,
                                context=update.effective_user.id, name=str(update.effective_user.id))
 
 
