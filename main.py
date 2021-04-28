@@ -63,7 +63,7 @@ def send_photo(update: Update, context: CallbackContext) -> None:
     proverb_img = open(get_random_image(IMG_DIR), 'rb')
     update.message.reply_photo(proverb_img)
     proverb_img.close()
-    update.message.reply_text('После полуночи смогу прислать еще одну!')
+    update.message.reply_text('После полуночи (по московскому времени) смогу прислать еще одну!')
     midnight = datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), datetime.time(0, 0))
     midnight_utc_3 = pytz.timezone('Europe/Moscow').localize(midnight)
     context.job_queue.run_once(send_reminder, midnight_utc_3,
@@ -74,7 +74,7 @@ def handle_message(update: Update, context: CallbackContext) -> None:
     logging.info('Got message with text "' + update.message.text + '" from ' + get_user_description(update))
     if update.message.text == GET_PROVERB_TEXT:
         if len(context.job_queue.get_jobs_by_name(str(update.effective_user.id))) > 0:
-            update.message.reply_text('Полночь еще не настала!')
+            update.message.reply_text('Полночь (по московскому времени) еще не настала!')
         else:
             send_photo(update, context)
 
