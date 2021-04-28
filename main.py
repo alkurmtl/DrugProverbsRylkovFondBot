@@ -12,7 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 GET_PROVERB_TEXT = 'Хочу пословицу!'
 IMG_DIR = 'img'
-random.seed(228)
+random.seed(int(datetime.datetime.now().timestamp()))  # seed was 228 initially :)
 
 
 def get_random_image(path: str) -> str:
