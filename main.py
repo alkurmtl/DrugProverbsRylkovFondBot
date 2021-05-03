@@ -35,9 +35,8 @@ def get_proverb_keyboard() -> ReplyKeyboardMarkup:
 def start(update: Update, _: CallbackContext) -> None:
     user = update.effective_user
     update.message.reply_markdown_v2(
-        'Привет, ' + user.full_name + '\! Этот бот каждый день будет по твоему запросу присылать тебе '
-        'по твоему запросу различные наркопословицы\. Чтобы получить первую, нажми кнопку\. '
-        '*Мы не пропагандируем употребление наркотиков\!*',
+        'Нажми кнопку и узнай какая пословица или примета выпадет тебе сегодня, но помни, '
+        'что *мы не пропагандируем употребление наркотиков\!*',
         reply_markup=get_proverb_keyboard(),
     )
     logging.info('Got /start from user ' + get_user_description(update))
