@@ -84,6 +84,7 @@ def main() -> None:
     token = token_file.readline().rstrip('\n')
     token_file.close()
     updater = Updater(token=token)
+    updater.job_queue.scheduler.configure(misfire_grace_time=60)
 
     dispatcher = updater.dispatcher
 
