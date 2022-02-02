@@ -76,8 +76,12 @@ def send_reminder(context: CallbackContext) -> None:
 def send_photo(update: Update, context: CallbackContext) -> None:
     img_path = get_random_image(IMG_DIR)
     logging.info('Sending image ' + img_path + ' to ' + get_user_description(update))
-    proverb_img = open(get_random_image(IMG_DIR), 'rb')
-    update.message.reply_photo(proverb_img)
+    file_path = get_random_image(IMG_DIR)
+    proverb_img = open(file_path, 'rb')
+    if 'Shine' in file_path:
+        update.message.reply_photo(proverb_img, caption='Вам выпала новинка 🔥🆕')
+    else:
+        update.message.reply_photo(proverb_img)
     proverb_img.close()
     update.message.reply_text('После полуночи (по московскому времени) смогу прислать еще одну!')
     midnight = datetime.datetime.now(pytz.timezone('Europe/Moscow'))\
