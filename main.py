@@ -4,7 +4,7 @@ import os, random
 import pytz
 
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, PicklePersistence
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -12,6 +12,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 GET_PROVERB_TEXT = 'Хочу пословицу!'
 IMG_DIR = 'img'
+ADMIN_ID = 33739616 # @wrg0ababd
 random.seed(int(datetime.datetime.now().timestamp()))  # seed was 228 initially :)
 
 
@@ -33,7 +34,6 @@ def get_proverb_keyboard() -> ReplyKeyboardMarkup:
 
 
 def start(update: Update, _: CallbackContext) -> None:
-    user = update.effective_user
     update.message.reply_markdown_v2(
         'Нажми кнопку и узнай какая пословица или примета выпадет тебе сегодня, но помни, '
         'что *мы не пропагандируем употребление наркотиков\!*',
@@ -45,6 +45,23 @@ def start(update: Update, _: CallbackContext) -> None:
 def help_command(update: Update, _: CallbackContext) -> None:
     update.message.reply_markdown_v2('Этот бот может каждый день присылать наркопословицы из рубрики '
                               '"Голос улиц" канала @farfond\. *Мы не пропагандируем употребление наркотиков\!*')
+
+
+def send_everyone(update: Update, context: CallbackContext) -> None:
+    if update.effective_user.id != ADMIN_ID:
+        return
+    if 'ids' not in context.bot_data:
+        return
+    message_text = update.effective_message.text[15:]
+    log_text = 'Sending message "' + message_text + '" to all users, ids:'
+    for id in context.bot_data['ids']:
+        log_text += ' '
+        context.bot.send_message(
+            id,
+            message_text
+        )
+        log_text += str(id)
+    logging.info(log_text)
 
 
 def send_reminder(context: CallbackContext) -> None:
@@ -71,6 +88,9 @@ def send_photo(update: Update, context: CallbackContext) -> None:
 
 
 def handle_message(update: Update, context: CallbackContext) -> None:
+    if 'ids' not in context.bot_data:
+        context.bot_data['ids'] = set()
+    context.bot_data['ids'].add(update.effective_user.id)
     logging.info('Got message with text "' + update.message.text + '" from ' + get_user_description(update))
     if update.message.text == GET_PROVERB_TEXT:
         if len(context.job_queue.get_jobs_by_name(str(update.effective_user.id))) > 0:
@@ -83,13 +103,15 @@ def main() -> None:
     token_file = open("token.txt", "r")
     token = token_file.readline().rstrip('\n')
     token_file.close()
-    updater = Updater(token=token)
+    persistence = PicklePersistence(filename='persistence')
+    updater = Updater(token=token, persistence=persistence)
     updater.job_queue.scheduler.configure(misfire_grace_time=60)
 
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(CommandHandler("send_everyone", send_everyone))
 
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
