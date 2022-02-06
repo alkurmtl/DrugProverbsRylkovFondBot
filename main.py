@@ -56,11 +56,14 @@ def send_everyone(update: Update, context: CallbackContext) -> None:
     log_text = 'Sending message "' + message_text + '" to all users, ids:'
     for id in context.bot_data['ids']:
         log_text += ' '
-        context.bot.send_message(
-            id,
-            message_text
-        )
         log_text += str(id)
+        try:
+            context.bot.send_message(
+                id,
+                message_text
+            )
+        except Exception as e:
+            log_text += '(unsuccessful, ' + e.__class__.__name__ + ')'
     logging.info(log_text)
 
 
