@@ -81,7 +81,7 @@ def send_photo(update: Update, context: CallbackContext) -> None:
     logging.info('Sending image ' + img_path + ' to ' + get_user_description(update))
     file_path = get_random_image(IMG_DIR)
     proverb_img = open(file_path, 'rb')
-    if 'Shine' in file_path:
+    if '06_03_2022' in file_path:
         update.message.reply_photo(proverb_img, caption='Вам выпала новинка 🔥🆕')
     else:
         update.message.reply_photo(proverb_img)
